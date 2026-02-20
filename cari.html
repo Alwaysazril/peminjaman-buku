@@ -1,25 +1,24 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cari Data - Perpus</title>
     <style>
-        body { font-family: sans-serif; background: #1a1a2f; color: white; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 400px; text-align: center; margin-top: 50px; }
-        input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 8px; border: none; box-sizing: border-box; font-size: 15px; }
-        .btn-cari { width: 100%; padding: 14px; background: #00d4ff; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 15px; }
-        a { color: #aaa; text-decoration: none; display: block; margin-top: 25px; font-size: 14px; }
+        body { background:#1a1a2f; color:white; font-family:sans-serif; display:flex; justify-content:center; padding:50px 20px; margin:0; }
+        .container { width:100%; max-width:400px; text-align:center; }
+        h2 { color:#00d4ff; margin-bottom:20px; }
+        input { width:100%; padding:14px; margin-bottom:12px; border-radius:10px; border:none; box-sizing:border-box; font-size:16px; }
+        button { width:100%; padding:14px; background:#00d4ff; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:16px; text-transform:uppercase; }
+        a { color:#aaa; text-decoration:none; display:block; margin-top:20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 style="color:#00d4ff;">🔍 CARI DATA</h2>
+        <h2>🔍 CARI DATA</h2>
         <form action="/cari" method="GET">
-            <input type="text" name="q" placeholder="Masukkan Nama atau Judul..." required autofocus>
-            <button type="submit" class="btn-cari">CARI SEKARANG</button>
+            <input type="text" name="q" placeholder="Ketik Nama/Judul..." required autofocus>
+            <button type="submit">Cari Sekarang</button>
         </form>
-        <a href="/">← KEMBALI KE BERANDA</a>
+        <a href="/">← KEMBALI</a>
     </div>
 </body>
 </html>
