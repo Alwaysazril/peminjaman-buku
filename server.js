@@ -9,7 +9,6 @@ app.use(express.static(__dirname));
 
 const dataFile = path.resolve(__dirname, 'data_peminjaman.txt');
 
-// Fungsi inisialisasi agar header lurus dengan data
 const inisialisasiData = () => {
     if (!fs.existsSync(dataFile)) {
         const header = "PEMINJAM       | JUDUL BUKU           | NO. BUKU   | ID BUKU | PENERBIT   | TAHUN     | KURIKULUM\n" +
@@ -18,25 +17,23 @@ const inisialisasiData = () => {
     }
 };
 
-// Route Halaman Utama
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Route untuk mengambil data (digunakan oleh fetch di index.html)
+// Endpoint untuk mengambil data bagi tampilan di index.html
 app.get('/data', (req, res) => {
     inisialisasiData();
     const content = fs.readFileSync(dataFile, 'utf8');
     res.send(content);
 });
 
-// --- PROSES SIMPAN DATA (SINKRON DENGAN INDEX.HTML) ---
+// PROSES SIMPAN DATA (Route disesuaikan menjadi /pinjam agar sinkron dengan HTML)
 app.post('/pinjam', (req, res) => {
     inisialisasiData();
     const d = req.body;
 
-    // Mengatur lebar kolom agar tetap rapi (Padding)
-    // Nama variabel di d.nama, d.buku, dll disesuaikan dengan atribut 'name' di index.html
+    // Nama variabel (d.nama, d.buku, dll) sekarang sesuai dengan atribut 'name' di index.html
     const nama      = (d.nama || '').toUpperCase().substring(0, 14).padEnd(14);
     const judul     = (d.buku || '').toUpperCase().substring(0, 20).padEnd(20);
     const noBuku    = (d.no_buku || '').substring(0, 10).padEnd(10);
@@ -48,9 +45,9 @@ app.post('/pinjam', (req, res) => {
     const baris = `${nama} | ${judul} | ${noBuku} | ${idBuku} | ${penerbit} | ${tahun} | ${kurikulum}\n`;
 
     fs.appendFileSync(dataFile, baris);
-    res.redirect('/'); // Kembali ke halaman utama setelah simpan
+    res.redirect('/'); 
 });
 
 app.listen(port, "0.0.0.0", () => {
-    console.log("SERVER AKTIF PADA PORT: " + port);
+    console.log("SERVER AKTIF DI PORT: " + port);
 });
