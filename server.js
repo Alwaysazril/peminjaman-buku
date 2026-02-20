@@ -5,9 +5,7 @@ const port = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
 
-// Nama file diubah sedikit agar sistem membuat database baru yang bersih
-const NAMA_FILE = 'database_perpus.txt';
-
+// Halaman Utama
 app.get('/', (req, res) => {
     res.send(`
 <!DOCTYPE html>
@@ -44,44 +42,67 @@ app.get('/', (req, res) => {
     `);
 });
 
+// Halaman Lihat Data dengan Fitur Hapus Per Baris
 app.get('/cek-data', (req, res) => {
     let log = "Belum ada data.";
-    if (fs.existsSync(NAMA_FILE)) {
-        log = fs.readFileSync(NAMA_FILE, 'utf8');
+    if (fs.existsSync('data_peminjaman.txt')) {
+        log = fs.readFileSync('data_peminjaman.txt', 'utf8');
     }
     res.send(`
         <body style="background:#1a1a2f; color:#00ff00; padding:15px; font-family:monospace;">
             <pre style="white-space:pre; font-size:9px; letter-spacing: 1px;">\${log}</pre>
             <hr style="border:0.5px solid #333; margin:20px 0;">
-            <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; display:inline-block;">
-                <p style="color:white; font-family:sans-serif; font-size:11px; margin:0 0 10px 0;">Hapus No Baris:</p>
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; max-width:400px;">
+                <p style="color:white; font-family:sans-serif; font-size:12px; margin-top:0;">🗑️ <b>Hapus Baris Tertentu:</b></p>
                 <form action="/hapus-baris" method="POST" style="display:flex; gap:5px;">
-                    <input type="number" name="nomorBaris" style="width:50px; padding:5px;" required>
-                    <button type="submit" style="background:#e67e22; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">HAPUS</button>
+                    <input type="number" name="nomorBaris" placeholder="No. Baris" style="padding:8px; border-radius:5px; border:none; width:80px;" required>
+                    <button type="submit" style="background:#e67e22; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">HAPUS BARIS</button>
                 </form>
             </div>
             <div style="display:flex; gap:10px; margin-top:20px;">
-                <a href="/" style="color:white; text-decoration:none; background:#444; padding:10px; border-radius:5px; font-family:sans-serif; font-size:12px;">⬅ KEMBALI</a>
-                <form action="/hapus-semua" method="POST"><button type="submit" style="background:#e74c3c; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-size:12px;">🗑️ HAPUS SEMUA</button></form>
+                <a href="/" style="color:white; text-decoration:none; background:#444; padding:10px 15px; border-radius:5px; font-family:sans-serif; font-size:12px;">⬅ KEMBALI</a>
+                <form action="/hapus-semua" method="POST" onsubmit="return confirm('Hapus SEMUA data?')">
+                    <button type="submit" style="background:#e74c3c; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; font-family:sans-serif; font-size:12px;">🗑️ HAPUS SEMUA</button>
+                </form>
             </div>
         </body>
     `);
 });
 
+// Fungsi Hapus Baris Spesifik
+app.post('/hapus-baris', (req, res) => {
+    const no = parseInt(req.body.nomorBaris);
+    if (fs.existsSync('data_peminjaman.txt')) {
+        let lines = fs.readFileSync('data_peminjaman.txt', 'utf8').split('\\n');
+        // Baris data dimulai setelah header (baris index 0 dan 1)
+        // Kita hapus baris ke (no + 1) karena ada 2 baris header
+        if (no > 0 && lines[no + 1]) {
+            lines.splice(no + 1, 1);
+            fs.writeFileSync('data_peminjaman.txt', lines.join('\\n'));
+        }
+    }
+    res.redirect('/cek-data');
+});
+
+app.post('/hapus-semua', (req, res) => {
+    if (fs.existsSync('data_peminjaman.txt')) { fs.unlinkSync('data_peminjaman.txt'); }
+    res.redirect('/cek-data');
+});
+
+// Fungsi Tambah Data dengan Nomor Urut Otomatis
 app.post('/tambah', (req, res) => {
     const d = req.body;
-    if (!fs.existsSync(NAMA_FILE)) {
-        const h = "ID | PEMINJAM       | JUDUL BUKU           | NO. BUKU   | ID BUKU | PENERBIT   | TAHUN     | KURIKULUM\\n" +
-                  "----------------------------------------------------------------------------------------------------";
-        fs.writeFileSync(NAMA_FILE, h);
+    if (!fs.existsSync('data_peminjaman.txt')) {
+        const h = "NO | PEMINJAM       | JUDUL BUKU           | NO. BUKU   | ID BUKU | PENERBIT   | TAHUN     | KURIKULUM\\n" +
+                  "---------------------------------------------------------------------------------------------------------";
+        fs.writeFileSync('data_peminjaman.txt', h);
     }
     
-    const content = fs.readFileSync(NAMA_FILE, 'utf8').trim();
-    const lines = content.split('\\n');
-    const currentId = lines.length - 1; 
+    const content = fs.readFileSync('data_peminjaman.txt', 'utf8').trim();
+    const lineCount = content.split('\\n').length - 2; // Kurangi 2 baris header
+    const nextNo = lineCount + 1;
 
-    const baris = "\\n" + 
-                  currentId.toString().padEnd(2) + " | " + 
+    const baris = "\\n" + nextNo.toString().padEnd(2) + " | " +
                   (d.namaPeminjam || '').toUpperCase().padEnd(14) + " | " + 
                   (d.judulBuku || '').toUpperCase().padEnd(20) + " | " + 
                   (d.nomorBuku || '').padEnd(10) + " | " + 
@@ -90,25 +111,8 @@ app.post('/tambah', (req, res) => {
                   (d.tahunTerbit || '').padEnd(9) + " | " + 
                   (d.kurikulum || '').toUpperCase();
     
-    fs.appendFileSync(NAMA_FILE, baris);
+    fs.appendFileSync('data_peminjaman.txt', baris);
     res.redirect('/cek-data');
 });
 
-app.post('/hapus-baris', (req, res) => {
-    const no = parseInt(req.body.nomorBaris);
-    if (fs.existsSync(NAMA_FILE)) {
-        let lines = fs.readFileSync(NAMA_FILE, 'utf8').split('\\n');
-        if (no > 0 && lines[no + 1]) {
-            lines.splice(no + 1, 1);
-            fs.writeFileSync(NAMA_FILE, lines.join('\\n'));
-        }
-    }
-    res.redirect('/cek-data');
-});
-
-app.post('/hapus-semua', (req, res) => {
-    if (fs.existsSync(NAMA_FILE)) fs.unlinkSync(NAMA_FILE);
-    res.redirect('/cek-data');
-});
-
-app.listen(port, "0.0.0.0", () => { console.log("ON"); });
+app.listen(port, "0.0.0.0", () => { console.log("Server Aktif"); });
