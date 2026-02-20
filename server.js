@@ -4,14 +4,12 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.static(__dirname));
 
-// Path file database
-const dataFile = path.join(__dirname, 'data_peminjaman.txt');
+const dataFile = path.resolve(__dirname, 'data_peminjaman.txt');
 
-// Inisialisasi Database
+// Inisialisasi Header agar lurus dengan data
 const inisialisasiData = () => {
     if (!fs.existsSync(dataFile)) {
         const header = "PEMINJAM       | JUDUL BUKU           | NO. BUKU   | ID BUKU | PENERBIT   | TAHUN     | KURIKULUM\n" +
@@ -20,24 +18,23 @@ const inisialisasiData = () => {
     }
 };
 
-// Route Halaman Utama
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Route Ambil Data untuk Tampilan
+// Menambahkan rute /data yang diminta oleh fetch di index.html
 app.get('/data', (req, res) => {
     inisialisasiData();
     const content = fs.readFileSync(dataFile, 'utf8');
     res.send(content);
 });
 
-// Route Simpan Data (Sesuai dengan nama input di index.html Anda)
+// Rute /pinjam disesuaikan dengan form action di index.html
 app.post('/pinjam', (req, res) => {
     inisialisasiData();
     const d = req.body;
 
-    // Mapping & Padding agar Rapi
+    // Nama variabel (d.nama, d.buku, dll) disesuaikan dengan atribut 'name' di index.html
     const nama      = (d.nama || '').toUpperCase().substring(0, 14).padEnd(14);
     const judul     = (d.buku || '').toUpperCase().substring(0, 20).padEnd(20);
     const noBuku    = (d.no_buku || '').substring(0, 10).padEnd(10);
@@ -48,14 +45,10 @@ app.post('/pinjam', (req, res) => {
 
     const baris = `${nama} | ${judul} | ${noBuku} | ${idBuku} | ${penerbit} | ${tahun} | ${kurikulum}\n`;
 
-    try {
-        fs.appendFileSync(dataFile, baris);
-        res.redirect('/');
-    } catch (err) {
-        res.status(500).send("Gagal menyimpan data");
-    }
+    fs.appendFileSync(dataFile, baris);
+    res.redirect('/'); 
 });
 
 app.listen(port, "0.0.0.0", () => {
-    console.log(`Server running on port ${port}`);
+    console.log("Server Aktif di Port: " + port);
 });
