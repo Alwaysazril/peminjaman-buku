@@ -9,7 +9,7 @@ app.use(express.static(__dirname));
 
 const dataFile = path.resolve(__dirname, 'data_peminjaman.txt');
 
-// --- LOGIKA PENYELARAS KOLOM ---
+// --- FUNGSI PENYELARAS KOLOM (Agar Lurus Sempurna) ---
 const pad = (str, len) => {
     let s = (str || "").toString().toUpperCase();
     if (s.length > len) return s.substring(0, len);
@@ -19,12 +19,12 @@ const pad = (str, len) => {
 const inisialisasiData = () => {
     if (!fs.existsSync(dataFile) || fs.readFileSync(dataFile, 'utf8').trim() === "") {
         const h = pad("PEMINJAM", 15) + " | " + pad("JUDUL BUKU", 20) + " | " + pad("NO. BUKU", 12) + " | " + pad("ID BUKU", 8) + " | " + pad("PENERBIT", 12) + " | " + pad("TAHUN", 10) + " | " + "KURIKULUM\n";
-        const l = "-".repeat(105) + "\n";
+        const l = "-".repeat(110) + "\n";
         fs.writeFileSync(dataFile, h + l, 'utf8');
     }
 };
 
-// --- TEMPLATE UI (Sesuai Gambar: Full Width & Scrollable) ---
+// --- TEMPLATE UI (Sesuai Gambar 1 & Gambar 2) ---
 const templateHasil = (judul, data) => `
     <!DOCTYPE html>
     <html lang="id">
@@ -42,14 +42,15 @@ const templateHasil = (judul, data) => `
                 padding: 0; 
                 margin: 0; 
             }
+            /* Header Biru Sesuai Gambar */
             .header-blue {
                 width: 100%;
                 background: #16162a;
-                padding: 15px 0;
+                padding: 18px 0;
                 text-align: center;
                 border-bottom: 2px solid #00d4ff;
-                margin-bottom: 20px;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                margin-bottom: 25px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             }
             .header-blue h2 {
                 color: #00d4ff;
@@ -57,41 +58,48 @@ const templateHasil = (judul, data) => `
                 font-size: 16px;
                 text-transform: uppercase;
                 letter-spacing: 2px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
             }
-            /* Kontainer utama agar bisa di-scroll ke samping */
-            .scroll-container {
+            /* Kontainer Box Hitam */
+            .scroll-box { 
                 width: 95%;
-                max-width: 1000px;
-                overflow-x: auto; /* Kunci agar tidak terpotong */
-                background: #000;
-                border-radius: 10px;
-                border: 1px solid #333;
-                padding: 15px;
-                margin-bottom: 20px;
+                max-width: 1100px;
+                background: #000; 
+                padding: 15px; 
+                border-radius: 10px; 
+                border: 1px solid #333; 
+                overflow-x: auto; /* Agar bisa di-scroll ke samping */
+                text-align: left; 
+                box-sizing: border-box;
             }
+            /* Teks Hijau Monospace */
             pre { 
                 color: #00ff00; 
                 font-family: 'Courier New', monospace; 
-                font-size: 12px; 
+                font-size: 11px; 
                 margin: 0; 
-                white-space: pre; /* Menjaga spasi tetap utuh */
+                white-space: pre; 
                 line-height: 1.6;
-                min-width: 850px; /* Memaksa teks memanjang agar semua kolom terlihat */
+                display: inline-block;
+                min-width: 980px; /* Paksa lebar agar semua kolom muncul di HP */
+            }
+            /* Tombol Kembali di Tengah Bawah */
+            .btn-container {
+                margin: 30px 0;
             }
             .btn-back { 
-                color: #aaa; 
+                color: #ffffff; 
                 text-decoration: none; 
                 font-size: 12px; 
                 font-weight: bold;
                 text-transform: uppercase;
-                margin-bottom: 30px;
-                border-bottom: 1px solid transparent;
+                opacity: 0.7;
                 transition: 0.3s;
             }
-            .btn-back:hover { 
-                color: #00d4ff; 
-                border-bottom: 1px solid #00d4ff;
-            }
+            .btn-back:hover { opacity: 1; color: #00d4ff; }
         </style>
     </head>
     <body>
@@ -99,11 +107,13 @@ const templateHasil = (judul, data) => `
             <h2>🔍 ${judul}</h2>
         </div>
         
-        <div class="scroll-container">
+        <div class="scroll-box">
             <pre>${data}</pre>
         </div>
 
-        <a href="/" class="btn-back">← KEMBALI</a>
+        <div class="btn-container">
+            <a href="/" class="btn-back">← KEMBALI</a>
+        </div>
     </body>
     </html>
 `;
@@ -113,19 +123,21 @@ const templateHasil = (judul, data) => `
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/halaman-cari', (req, res) => res.sendFile(path.join(__dirname, 'cari.html')));
 
+// Tampilan LIHAT DATA (Gambar 1)
 app.get('/cek-data', (req, res) => {
     inisialisasiData();
     const content = fs.readFileSync(dataFile, 'utf8');
     res.send(templateHasil("DATABASE PEMINJAMAN", content));
 });
 
-// Preview data mentah untuk di bawah form index.html
+// Preview data mentah untuk halaman utama
 app.get('/data-raw', (req, res) => {
     inisialisasiData();
     res.setHeader('Content-Type', 'text/plain');
     res.send(fs.readFileSync(dataFile, 'utf8'));
 });
 
+// Simpan Data
 app.post('/pinjam', (req, res) => {
     inisialisasiData();
     const d = req.body;
@@ -134,6 +146,7 @@ app.post('/pinjam', (req, res) => {
     res.redirect('/');
 });
 
+// Tampilan HASIL PENCARIAN (Gambar 2)
 app.get('/cari', (req, res) => {
     const q = (req.query.q || '').toUpperCase();
     inisialisasiData();
@@ -145,4 +158,4 @@ app.get('/cari', (req, res) => {
     res.send(templateHasil("HASIL PENCARIAN", hasilFinal));
 });
 
-app.listen(port, "0.0.0.0", () => console.log(`Server Aktif`));
+app.listen(port, "0.0.0.0", () => console.log("Server Aktif..."));
