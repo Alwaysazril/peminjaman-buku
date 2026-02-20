@@ -1,5 +1,5 @@
 const express = require('express');
-const fs = require('fs'); // Sudah diperbaiki dari 'fa' ke 'fs'
+const fs = require('fs'); // Perbaikan: tadinya 'fa' sekarang sudah 'fs'
 const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,7 +9,7 @@ app.use(express.static(__dirname));
 
 const dataFile = path.resolve(__dirname, 'data_peminjaman.txt');
 
-// Inisialisasi Database
+// Fungsi inisialisasi agar database punya header yang rapi
 const inisialisasiData = () => {
     if (!fs.existsSync(dataFile)) {
         const header = "PEMINJAM       | JUDUL BUKU           | NO. BUKU   | ID BUKU | PENERBIT   | TAHUN     | KURIKULUM\n" +
@@ -18,24 +18,24 @@ const inisialisasiData = () => {
     }
 };
 
-// HALAMAN UTAMA
+// --- HALAMAN UTAMA ---
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// AMBIL DATA UNTUK DITAMPILKAN DI TABEL
+// --- AMBIL DATA (Untuk tabel di bawah form) ---
 app.get('/data', (req, res) => {
     inisialisasiData();
     const content = fs.readFileSync(dataFile, 'utf8');
     res.send(content);
 });
 
-// FITUR TAMBAH DATA (Sudah sinkron dengan index.html)
+// --- SIMPAN DATA (Sesuai dengan name="" di index.html) ---
 app.post('/pinjam', (req, res) => {
     inisialisasiData();
     const d = req.body;
     
-    // Format padding agar kolom lurus rapi
+    // Padding agar kolom tetap lurus sejajar
     const nama = (d.nama || '').toUpperCase().substring(0, 14).padEnd(14);
     const buku = (d.buku || '').toUpperCase().substring(0, 20).padEnd(20);
     const no   = (d.no_buku || '').substring(0, 10).padEnd(10);
@@ -49,24 +49,24 @@ app.post('/pinjam', (req, res) => {
     res.redirect('/');
 });
 
-// FITUR CARI DATA
+// --- FITUR CARI ---
 app.get('/cari', (req, res) => {
     const query = (req.query.q || '').toUpperCase();
     inisialisasiData();
     const content = fs.readFileSync(dataFile, 'utf8');
     const lines = content.split('\n');
     const header = lines.slice(0, 2).join('\n');
-    const results = lines.slice(2).filter(l => l.includes(query) && l.trim() !== "");
-    const hasil = results.length > 0 ? header + "\n" + results.join('\n') : "Data tidak ditemukan.";
+    const filtered = lines.slice(2).filter(l => l.includes(query) && l.trim() !== "");
+    const hasil = filtered.length > 0 ? header + "\n" + filtered.join('\n') : "Data tidak ditemukan.";
     
     res.send(`<body style="background:#1a1a2f; color:#00ff00; padding:20px; font-family:monospace;">
-        <h3>Hasil Pencarian: "${query}"</h3>
+        <h2>🔍 Hasil Cari: "${query}"</h2>
         <pre>${hasil}</pre>
         <hr><a href="/" style="color:white; text-decoration:none; background:#444; padding:10px; border-radius:5px;">🔙 KEMBALI</a>
     </body>`);
 });
 
-// FITUR CEK DATA FULL
+// --- FITUR CEK DATA ---
 app.get('/cek-data', (req, res) => {
     inisialisasiData();
     const log = fs.readFileSync(dataFile, 'utf8');
@@ -74,5 +74,5 @@ app.get('/cek-data', (req, res) => {
 });
 
 app.listen(port, "0.0.0.0", () => {
-    console.log("Server aktif di port " + port);
+    console.log("Server Online di Port " + port);
 });
