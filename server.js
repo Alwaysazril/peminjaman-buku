@@ -9,9 +9,7 @@ app.use(express.static(__dirname));
 
 const dataFile = path.resolve(__dirname, 'data_peminjaman.txt');
 
-// --- FUNGSI PENDUKUNG ---
-
-// Penyelaras kolom agar lurus (Monospace Alignment)
+// --- FUNGSI PENYELARAS KOLOM ---
 const pad = (str, len) => {
     let s = (str || "").toString().toUpperCase();
     if (s.length > len) return s.substring(0, len);
@@ -26,7 +24,7 @@ const inisialisasiData = () => {
     }
 };
 
-// TEMPLATE UI UNTUK CEK DATA & CARI DATA (Agar Identik)
+// --- TEMPLATE UI (Sesuai Gambar: Judul Atas, Data Box, Tombol Tengah Bawah) ---
 const templateHasil = (judul, data) => `
     <!DOCTYPE html>
     <html lang="id">
@@ -39,47 +37,35 @@ const templateHasil = (judul, data) => `
                 color: white; 
                 font-family: sans-serif; 
                 display: flex; 
-                justify-content: center; 
-                padding: 20px; 
+                flex-direction: column;
+                align-items: center;
+                padding: 0; 
                 margin: 0; 
             }
-            .wrapper { 
-                width: 100%; 
-                max-width: 950px; 
-                text-align: center; 
-            }
-            h2 { 
-                color: #00d4ff; 
-                text-transform: uppercase; 
-                font-size: 18px; 
+            .header-blue {
+                width: 100%;
+                background: #16162a;
+                padding: 15px 0;
+                text-align: center;
+                border-bottom: 2px solid #00d4ff;
                 margin-bottom: 20px;
-                letter-spacing: 1px;
             }
-            .nav-container {
-                text-align: left;
-                margin-bottom: 15px;
+            .header-blue h2 {
+                color: #00d4ff;
+                margin: 0;
+                font-size: 16px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
             }
-            .btn-back { 
-                display: inline-block; 
-                background: #3d3d5c; 
-                color: white; 
-                padding: 10px 20px; 
-                text-decoration: none; 
-                border-radius: 8px; 
-                font-size: 12px; 
-                font-weight: bold; 
-                border: 1px solid #444;
-                transition: 0.3s;
-            }
-            .btn-back:hover { background: #4e4e7a; }
             .db-box { 
+                width: 90%;
+                max-width: 950px;
                 background: #000; 
-                padding: 15px; 
-                border-radius: 12px; 
+                padding: 12px; 
+                border-radius: 8px; 
                 border: 1px solid #333; 
                 overflow-x: auto; 
                 text-align: left; 
-                box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             }
             pre { 
                 color: #00ff00; 
@@ -87,19 +73,32 @@ const templateHasil = (judul, data) => `
                 font-size: 11px; 
                 margin: 0; 
                 white-space: pre; 
-                line-height: 1.6;
+                line-height: 1.5;
             }
+            .btn-back-container {
+                margin: 20px 0;
+            }
+            .btn-back { 
+                color: #aaa; 
+                text-decoration: none; 
+                font-size: 12px; 
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+            .btn-back:hover { color: white; }
         </style>
     </head>
     <body>
-        <div class="wrapper">
-            <h2>${judul}</h2>
-            <div class="nav-container">
-                <a href="/" class="btn-back">← KEMBALI KE BERANDA</a>
-            </div>
-            <div class="db-box">
-                <pre>${data}</pre>
-            </div>
+        <div class="header-blue">
+            <h2>🔍 ${judul}</h2>
+        </div>
+        
+        <div class="db-box">
+            <pre>${data}</pre>
+        </div>
+
+        <div class="btn-back-container">
+            <a href="/" class="btn-back">← KEMBALI</a>
         </div>
     </body>
     </html>
@@ -110,14 +109,12 @@ const templateHasil = (judul, data) => `
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/halaman-cari', (req, res) => res.sendFile(path.join(__dirname, 'cari.html')));
 
-// Route Lihat Data (Menggunakan Template)
 app.get('/cek-data', (req, res) => {
     inisialisasiData();
     const content = fs.readFileSync(dataFile, 'utf8');
-    res.send(templateHasil("📋 DATABASE PEMINJAMAN BUKU", content));
+    res.send(templateHasil("DATABASE PEMINJAMAN", content));
 });
 
-// Route Preview untuk index.html (Data mentah)
 app.get('/data-raw', (req, res) => {
     inisialisasiData();
     res.setHeader('Content-Type', 'text/plain');
@@ -132,7 +129,6 @@ app.post('/pinjam', (req, res) => {
     res.redirect('/');
 });
 
-// Route Hasil Cari (Menggunakan Template yang Sama)
 app.get('/cari', (req, res) => {
     const q = (req.query.q || '').toUpperCase();
     inisialisasiData();
@@ -141,7 +137,7 @@ app.get('/cari', (req, res) => {
     const results = lines.filter(l => l.includes('|') && l.toUpperCase().includes(q) && !l.includes('PEMINJAM'));
     
     const hasilFinal = results.length > 0 ? header + "\n" + results.join('\n') : "DATA TIDAK DITEMUKAN.";
-    res.send(templateHasil("🔍 HASIL PENCARIAN DATA", hasilFinal));
+    res.send(templateHasil("HASIL PENCARIAN", hasilFinal));
 });
 
-app.listen(port, "0.0.0.0", () => console.log(`Server aktif di port ${port}`));
+app.listen(port, "0.0.0.0", () => console.log(`Server ON` ));
