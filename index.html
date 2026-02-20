@@ -11,13 +11,10 @@
         h2 { color: #00d4ff; margin-bottom: 20px; font-size: 24px; }
         input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: none; background: #fff; box-sizing: border-box; }
         .btn-simpan { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin: 15px 0; font-size: 16px; }
-        .btn-simpan:hover { background: #2ecc71; }
         .footer-btns { display: flex; gap: 10px; }
         .btn-sub { flex: 1; padding: 12px; background: #3d3d5c; color: #ddd; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        
-        /* Box database di bawah card jika ingin tetap tampil */
-        .db-box { margin-top: 20px; background: #000; padding: 10px; border-radius: 10px; overflow-x: auto; display: none; }
-        pre { color: #00ff00; font-family: monospace; font-size: 10px; text-align: left; }
+        .db-box { margin-top: 20px; background: #000; padding: 10px; border-radius: 10px; overflow-x: auto; border: 1px solid #333; }
+        pre { color: #00ff00; font-family: monospace; font-size: 10px; text-align: left; margin: 0; }
     </style>
 </head>
 <body>
@@ -34,33 +31,19 @@
                 <input type="text" name="kurikulum" placeholder="Kurikulum">
                 <button type="submit" class="btn-simpan">SIMPAN DATA</button>
             </form>
-
             <div class="footer-btns">
-                <a href="/cek-data" class="btn-sub">📋 LIHAT DATA</a>
-                <button onclick="cariData()" class="btn-sub">🔍 CARI DATA</button>
+                <a href="/data" target="_blank" class="btn-sub">📋 LIHAT DATA</a>
+                <a href="/halaman-cari" class="btn-sub">🔍 CARI DATA</a>
             </div>
         </div>
-
-        <div id="dbContainer" class="db-box">
-            <pre id="listData"></pre>
+        <div class="db-box">
+            <pre id="listData">Memuat database...</pre>
         </div>
     </div>
-
     <script>
-        function cariData() {
-            const q = prompt("Masukkan kata kunci pencarian:");
-            if (q) window.location.href = '/cari?q=' + q;
-        }
-
-        // Otomatis muat data jika ingin ditampilkan di bawah
-        fetch('/data')
-            .then(res => res.text())
-            .then(data => {
-                if(data.trim() !== "") {
-                    document.getElementById('dbContainer').style.display = 'block';
-                    document.getElementById('listData').textContent = data;
-                }
-            });
+        fetch('/data').then(res => res.text()).then(data => {
+            document.getElementById('listData').textContent = data;
+        });
     </script>
 </body>
 </html>
