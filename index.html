@@ -1,24 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Input Perpustakaan</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    </style>
-</head>
 <body>
-    <div class="card">
-        <h2>Pinjam Buku Sekolah</h2>
-        <form action="/tambah" method="POST">
-            <input type="text" name="namaPeminjam" placeholder="Nama Peminjam" required>
-            <input type="text" name="judulBuku" placeholder="Judul Buku" required>
-            <input type="text" name="nomorBuku" placeholder="Nomor Buku">
-            <button type="submit">Simpan Data</button>
+    <div style="max-width: 600px; margin: auto;">
+        <h2>📚 Data Perpustakaan Online</h2>
+        
+        <form action="/pinjam" method="POST" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <input type="text" name="nama" placeholder="Nama Peminjam" required style="width: 100%; margin-bottom: 10px; padding: 8px;">
+            <input type="text" name="buku" placeholder="Judul Buku" required style="width: 100%; margin-bottom: 10px; padding: 8px;">
+            <button type="submit" style="width: 100%; background: #4CAF50; color: white; border: none; padding: 10px; cursor: pointer;">Tambah Pinjaman</button>
         </form>
+
+        <h3 style="margin-top: 30px;">Daftar Peminjaman</h3>
+        <table border="1" style="width: 100%; border-collapse: collapse; background: white;">
+            <thead>
+                <tr style="background: #eee;">
+                    <th style="padding: 10px;">Data Peminjaman</th>
+                    <th style="padding: 10px;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="listData">
+                </tbody>
+        </table>
     </div>
+
+    <script>
+        fetch('/data')
+            .then(res => res.text())
+            .then(data => {
+                const tbody = document.getElementById('listData');
+                const lines = data.split('\n').filter(l => l.trim() !== '');
+                
+                if (lines.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; padding:10px;">Belum ada data</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = lines.map((line, index) => `
+                    <tr>
+                        <td style="padding: 10px;">${line}</td>
+                        <td style="padding: 10px; text-align: center;">
+                            <form action="/hapus" method="POST" style="margin:0">
+                                <input type="hidden" name="index" value="${index}">
+                                <button type="submit" style="background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+    </script>
 </body>
-</html>
