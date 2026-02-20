@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cari Data</title>
+    <style>
+        body { font-family: sans-serif; background: #1a1a2f; color: white; padding: 15px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 400px; margin-top: 50px; text-align: center; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; box-sizing: border-box; }
+        .btn-cari { width: 100%; padding: 12px; background: #00d4ff; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="color: #00d4ff;">🔍 CARI DATA</h2>
+        <form action="/cari" method="GET">
+            <input type="text" name="q" placeholder="Ketik Nama/Judul..." required>
+            <button type="submit" class="btn-cari">CARI SEKARANG</button>
+        </form>
+        <br>
+        <a href="/" style="color: #aaa; text-decoration: none;">← KEMBALI</a>
+    </div>
+</body>
+</html>
