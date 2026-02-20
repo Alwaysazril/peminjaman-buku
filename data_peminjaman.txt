@@ -1,5 +1,3 @@
 === LAPORAN PEMINJAMAN BUKU SEKOLAH 📚===
 === Coding by azril, © NO-COPYRIGT:
-------------------------------------------------------------------------------------------
-PEMINJAM   | JUDUL BUKU    | NO. BUKU | ID BUKU | PENERBIT | TAHUN | KURIKULUM
--------------------------------------------------------------------------------------------
+
