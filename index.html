@@ -6,31 +6,13 @@
     <title>Perpus Online Azril</title>
     <style>
         body { font-family: sans-serif; background: #2c3e50; color: white; padding: 15px; margin: 0; }
-        .container { max-width: 600px; margin: auto; }
+        .container { max-width: 800px; margin: auto; }
         .input-group { background: #34495e; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        input { width: 93%; padding: 12px; margin: 8px 0; border-radius: 6px; border: none; background: #ecf0f1; font-size: 14px; }
-        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        button:hover { background: #2ecc71; }
-        
-        /* Box Laporan Database agar rapi dan bisa di-scroll samping */
-        .db-box { 
-            background: #1e1e1e; 
-            padding: 15px; 
-            border-radius: 8px; 
-            overflow-x: auto; 
-            border: 1px solid #444; 
-            margin-top: 10px;
-        }
-        
-        /* Menggunakan font Monospace agar spasi tabel lurus sempurna */
-        pre { 
-            color: #00ff00; 
-            font-family: 'Courier New', Courier, monospace; 
-            font-size: 12px; 
-            margin: 0; 
-            white-space: pre; /* Mencegah teks turun ke bawah otomatis */
-        }
-        h3 { margin-top: 25px; border-left: 5px solid #27ae60; padding-left: 10px; }
+        input { width: 95%; padding: 12px; margin: 8px 0; border-radius: 6px; border: none; background: #ecf0f1; }
+        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .db-box { background: #1e1e1e; padding: 15px; border-radius: 8px; overflow-x: auto; border: 1px solid #444; margin-top: 10px; }
+        pre { color: #00ff00; font-family: 'Courier New', monospace; font-size: 12px; margin: 0; white-space: pre; }
+        h3 { border-left: 5px solid #27ae60; padding-left: 10px; }
     </style>
 </head>
 <body>
@@ -45,26 +27,21 @@
                 <input type="text" name="penerbit" placeholder="Penerbit">
                 <input type="text" name="tahun" placeholder="Tahun Terbit">
                 <input type="text" name="kurikulum" placeholder="Kurikulum">
-                <button type="submit">💾 SIMPAN DATA LENGKAP</button>
+                <button type="submit">💾 SIMPAN DATA</button>
             </form>
         </div>
 
         <h3>📋 Laporan Database:</h3>
         <div class="db-box">
-            <pre id="listData">Memuat data dari server...</pre>
+            <pre id="listData">Memuat data...</pre>
         </div>
     </div>
 
     <script>
-        // Mengambil data teks dari file data_peminjaman.txt lewat server
         fetch('/data')
             .then(res => res.text())
             .then(data => {
-                const display = document.getElementById('listData');
-                display.textContent = data || "Database kosong.";
-            })
-            .catch(err => {
-                document.getElementById('listData').textContent = "Gagal memuat data.";
+                document.getElementById('listData').textContent = data || "Database kosong.";
             });
     </script>
 </body>
